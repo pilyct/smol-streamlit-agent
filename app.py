@@ -20,23 +20,23 @@ st.set_page_config(
 )
 
 
-@contextmanager
-def timeout(seconds):
-    """Context manager for timeout (Unix only)"""
-    def timeout_handler(signum, frame):
-        raise TimeoutError("Agent execution timed out")
+# @contextmanager
+# def timeout(seconds):
+#     """Context manager for timeout (Unix only)"""
+#     def timeout_handler(signum, frame):
+#         raise TimeoutError("Agent execution timed out")
     
-    # Only works on Unix systems
-    try:
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(seconds)
-        try:
-            yield
-        finally:
-            signal.alarm(0)
-    except AttributeError:
-        # Windows doesn't have SIGALRM, just yield without timeout
-        yield
+#     # Only works on Unix systems
+#     try:
+#         signal.signal(signal.SIGALRM, timeout_handler)
+#         signal.alarm(seconds)
+#         try:
+#             yield
+#         finally:
+#             signal.alarm(0)
+#     except AttributeError:
+#         # Windows doesn't have SIGALRM, just yield without timeout
+#         yield
 
 
 @st.cache_resource
@@ -112,15 +112,21 @@ if user_text:
         
         try:
             # Try to use timeout (Unix only)
-            with timeout(120):  # 2 minute timeout
-                answer = agent.run(user_text)
+        #     with timeout(120):  # 2 minute timeout
+        #         answer = agent.run(user_text)
             
+        #     elapsed = time.time() - start_time
+        #     placeholder.markdown(f"{answer}\n\n*Took {elapsed:.1f}s*")
+            
+        # except TimeoutError:
+        #     answer = "⏱️ The agent took too long to respond. Please try a simpler question or try again."
+        #     placeholder.markdown(answer)
+
+         # Simply run the agent without signal-based timeout
+            # The timeout in agent.py (90s) will handle long-running requests
+            answer = agent.run(user_text)
             elapsed = time.time() - start_time
             placeholder.markdown(f"{answer}\n\n*Took {elapsed:.1f}s*")
-            
-        except TimeoutError:
-            answer = "⏱️ The agent took too long to respond. Please try a simpler question or try again."
-            placeholder.markdown(answer)
             
         except Exception as e:
             answer = f"❌ Error: {str(e)}"
