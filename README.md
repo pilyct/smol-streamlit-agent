@@ -1,4 +1,4 @@
-# SmolAgents + Streamlit Demo
+# 🤖 SmolAgents + Streamlit Demo
 
 A tiny and complete end-to-end project demonstrating agentic AI with tool use:
 
@@ -17,7 +17,7 @@ It can intelligently decide when to use Python tools such as:
 
 This is a minimal production-ready "AI app" you can run locally in minutes, plus an interactive terminal interface for testing!
 
-## Project Structure
+## 📁 Project Structure
 
 ```bash
 smol_streamlit_agent/
@@ -37,7 +37,7 @@ smol_streamlit_agent/
     └── run_all_tests.py    # Run all tests in sequence
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ### 1. Clone and Setup
 
@@ -70,7 +70,7 @@ Create an `.env` file and add your token:
 HUGGINGFACEHUB_API_TOKEN=hf_your_token_here
 ```
 
-## Testing (Before running the app)
+## 🧪 Testing (Before running the app)
 
 ### 1. Test Tools (Fastest)
 
@@ -117,7 +117,7 @@ You: quit
 python test/run_all_tests.py
 ```
 
-## Run the App
+## 🌐 Run the App
 
 ```bash
 streamlit run app.py
@@ -132,7 +132,7 @@ Try prompts like:
 - "What time is it in Berlin and New York?"
 - "Write a haiku about black holes, then count its words"
 
-## Configuration
+## ⚙️ Configuration
 
 ### Change the Model
 
@@ -181,14 +181,14 @@ agent = CodeAgent(
 )
 ```
 
-## Learning Resources
+## 🎓 Learning Resources
 
 - [smolagents Documentation](https://github.com/huggingface/smolagents)
 - [Streamlit Documentation](https://docs.streamlit.io/)
 - [Hugging Face Inference API](https://huggingface.co/docs/api-inference)
 - [Building AI Agents Guide](https://huggingface.co/blog/smolagents)
 
-## Notes
+## 📝 Notes
 
 - The **Hugging Face free tier** has rate limits and occasional cold starts.
 - `Qwen 2.5 7B` provides the best balance of speed and capability for free.
