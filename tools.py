@@ -1,52 +1,80 @@
-"""
-Custom tools for the agent.
-"""
 from smolagents import tool
-from datetime import datetime
-import pytz
+from rank_bm25 import BM25Okapi
+from storage import get_chunks_for_doc, get_summary, set_summary
 
-
-@tool
-def get_time(timezone: str = "UTC") -> str:
-    """
-    Get the current time in a specific timezone.
-    
-    Args:
-        timezone: The timezone name (e.g., 'Europe/Berlin', 'America/New_York', 'UTC', 'Asia/Tokyo')
-    
-    Returns:
-        Current time in ISO format for the specified timezone
-    
-    Examples:
-        get_time("Europe/Berlin") -> "2024-01-28T15:30:45+01:00"
-        get_time() -> "2024-01-28T14:30:45+00:00" (UTC)
-    """
-    try:
-        tz = pytz.timezone(timezone)
-        current_time = datetime.now(tz)
-        return current_time.isoformat(timespec="seconds")
-    except pytz.exceptions.UnknownTimeZoneError:
-        # Fallback to UTC if timezone is invalid
-        return f"Invalid timezone '{timezone}'. Using UTC: {datetime.now(pytz.UTC).isoformat(timespec='seconds')}"
-    except Exception as e:
-        return f"Error getting time: {str(e)}"
-
+MAX_ANSWER_CHUNKS = 5
 
 @tool
-def word_count(text: str) -> int:
+def search_documents(name: str, query: str) -> str:
     """
-    Count the number of words in a text.
-    
+    Search a stored document for relevant excerpts using BM25 ranking.
+
     Args:
-        text: The text to count words in
-    
+        name: The name of the stored document to search.
+        query: The user question or search query.
+
     Returns:
-        Number of words in the text
-    
-    Examples:
-        word_count("Hello world") -> 2
-        word_count("The quick brown fox") -> 4
+        The most relevant excerpts with citations in the form:
+        [chunk <index>] <excerpt>
     """
-    if not text or not text.strip():
-        return 0
-    return len(text.split())
+    name = (name or "").strip()
+    query = (query or "").strip()
+
+    if not name:
+        return "Document name is required."
+    if not query:
+        return "Query is empty."
+
+    chunks = get_chunks_for_doc(name)
+    if not chunks:
+        return f"No chunks found for '{name}'."
+
+    corpus_tokens = [toks for (_cid, _idx, _content, toks) in chunks]
+    bm25 = BM25Okapi(corpus_tokens)
+    scores = bm25.get_scores(query.lower().split())
+
+    ranked = sorted(zip(chunks, scores), key=lambda x: x[1], reverse=True)[:MAX_ANSWER_CHUNKS]
+
+    out = []
+    for (_cid, cidx, content, _toks), score in ranked:
+        excerpt = content[:700].replace("\n", " ").strip()
+        out.append(f"[chunk {cidx}] {excerpt}")
+
+    return "\n".join(out)
+
+@tool
+def get_cached_summary(name: str) -> str:
+    """
+    Retrieve the cached summary for a document, if one exists.
+
+    Args:
+        name: The name of the stored document.
+
+    Returns:
+        The cached summary text if available, otherwise a message indicating
+        no summary is cached.
+    """
+    name = (name or "").strip()
+    if not name:
+        return "Document name is required."
+    s = get_summary(name)
+    return s if s else "No cached summary found."
+
+@tool
+def save_summary(name: str, summary: str) -> str:
+    """
+    Save a summary for a document in the cache.
+
+    Args:
+        name: The name of the stored document.
+        summary: The summary text to store.
+
+    Returns:
+        A confirmation message indicating the summary was saved.
+    """
+    name = (name or "").strip()
+    summary = (summary or "").strip()
+    if not name or not summary:
+        return "Name and summary are required."
+    set_summary(name, summary)
+    return f"Saved summary for '{name}'."

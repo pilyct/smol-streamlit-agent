@@ -23,3 +23,24 @@ env/
 Thumbs.db
 .vscode/
 .idea/
+
+# --- Databases ---
+data/
+uploads/
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Specific project DB
+doc_agent.db
+
+# SQLite temp/journal files
+*.db-journal
+*.sqlite-journal
+*.db-wal
+*.db-shm
+
+# --- Test (temporal) ---
+test/

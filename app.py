@@ -1,140 +1,179 @@
-"""
-Streamlit web interface for the agent.
-Run with: streamlit run app.py
-"""
+import io
+import re
 import streamlit as st
 from dotenv import load_dotenv
-from agent import build_agent, MODEL_ID
-import signal
-from contextlib import contextmanager
-import time
+from pypdf import PdfReader
 
-# Load environment variables
-load_dotenv()
-
-# Page configuration
-st.set_page_config(
-    page_title="SmolAgents + Streamlit",
-    page_icon="🤖",
-    layout="centered"
+from agent import build_agent
+from storage import (
+    init_db, upsert_document, insert_chunks, chunk_text,
+    list_documents, delete_document,
+    get_cached_answer, set_cached_answer,
+    get_chunk_text_by_index,
 )
 
+load_dotenv()
+init_db()
 
-# @contextmanager
-# def timeout(seconds):
-#     """Context manager for timeout (Unix only)"""
-#     def timeout_handler(signum, frame):
-#         raise TimeoutError("Agent execution timed out")
-    
-#     # Only works on Unix systems
-#     try:
-#         signal.signal(signal.SIGALRM, timeout_handler)
-#         signal.alarm(seconds)
-#         try:
-#             yield
-#         finally:
-#             signal.alarm(0)
-#     except AttributeError:
-#         # Windows doesn't have SIGALRM, just yield without timeout
-#         yield
-
+st.set_page_config(page_title="Doc Agent", layout="centered")
+st.title("Document Summarizer with Memory")
+st.caption("Model is only used for Summarize and Q&A. List/Delete/Store are model-free.")
 
 @st.cache_resource
 def get_agent():
-    """Build and cache the agent"""
-    return build_agent(verbose=1)
+    return build_agent(verbose=0)
 
+agent = get_agent()
 
-# Header
-st.title("🤖 SmolAgents Agent")
-st.caption(f"📦 Model: {MODEL_ID}")
+# -----------------------
+# PDF / TXT extraction
+# -----------------------
+def extract_text_from_pdf(file_bytes: bytes) -> str:
+    reader = PdfReader(io.BytesIO(file_bytes))
+    parts = []
+    for page in reader.pages:
+        parts.append(page.extract_text() or "")
+    return "\n".join(parts).strip()
 
-# Initialize agent
-try:
-    agent = get_agent()
-except Exception as e:
-    st.error(f"❌ Failed to build agent: {e}")
-    st.info("💡 Make sure you have set HUGGINGFACEHUB_API_TOKEN in your .env file")
-    st.stop()
+def extract_text(uploaded_file) -> str:
+    name = uploaded_file.name.lower()
+    data = uploaded_file.getvalue()
+    if name.endswith(".txt"):
+        return data.decode("utf-8", errors="ignore").strip()
+    if name.endswith(".pdf"):
+        return extract_text_from_pdf(data)
+    return ""
 
-# Initialize session state
+# -----------------------
+# UI: Document controls
+# -----------------------
+with st.sidebar:
+    st.subheader("Documents")
+
+    docs = list_documents()
+    doc_names = [n for n, _created in docs]
+
+    selected_doc = st.selectbox(
+        "Current document",
+        options=["(none)"] + doc_names,
+        index=0 if not doc_names else 1,
+    )
+    current_doc = None if selected_doc == "(none)" else selected_doc
+
+    st.divider()
+
+    st.subheader("Upload & store (no model call)")
+    uploaded = st.file_uploader("TXT or text-based PDF", type=["txt", "pdf"])
+    doc_name = st.text_input("Document name (optional)", value="")
+
+    if uploaded is not None:
+        inferred_name = doc_name.strip() or uploaded.name.rsplit(".", 1)[0]
+        if st.button("Store document"):
+            text = extract_text(uploaded)
+            if not text or len(text) < 50:
+                st.error("Could not extract meaningful text. If this PDF is scanned, OCR is not supported in this starter.")
+            else:
+                # Store without model
+                doc_id = upsert_document(inferred_name, created_at_iso="stored_via_app")
+                chunks = chunk_text(text)
+                insert_chunks(doc_id, chunks)
+                st.success(f"Stored '{inferred_name}' with {len(chunks)} chunks.")
+
+    st.divider()
+
+    st.subheader("List (no model call)")
+    if st.button("Refresh list"):
+        st.rerun()
+
+    if docs:
+        st.write("Stored documents:")
+        for name, created in docs:
+            st.write(f"- {name} ({created})")
+    else:
+        st.caption("No documents stored yet.")
+
+    st.divider()
+
+    st.subheader("Delete (no model call)")
+    if current_doc:
+        if st.button(f"Delete '{current_doc}'"):
+            delete_document(current_doc)
+            st.success(f"Deleted '{current_doc}'.")
+            st.rerun()
+    else:
+        st.caption("Select a document to delete.")
+
+    st.divider()
+
+    st.subheader("Summarize (uses model once, then cached)")
+    if current_doc:
+        if st.button(f"Summarize '{current_doc}'"):
+            # Model call, but summary will be cached by the agent tool save_summary
+            summary = agent.run(f"Summarize the document named '{current_doc}'.")
+            st.success("Summary ready.")
+            st.write(summary)
+    else:
+        st.caption("Select a document to summarize.")
+
+# -----------------------
+# Chat
+# -----------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Sidebar
-with st.sidebar:
-    st.subheader("🎛️ Controls")
-    
-    if st.button("🗑️ Clear chat", use_container_width=True):
-        st.session_state.messages = []
-        st.rerun()
-    
-    st.divider()
-    
-    st.subheader("💭 Example Questions")
-    st.markdown("""
-    - What time is it in Europe/Berlin?
-    - What time is it in Tokyo?
-    - Count words in "Hello world"
-    - What time is it in New York and London?
-    """)
-    
-    st.divider()
-    
-    st.subheader("🛠️ Available Tools")
-    st.markdown("""
-    - **get_time**: Get current time in any timezone
-    - **word_count**: Count words in text
-    """)
-
-# Render chat history
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.markdown(m["content"])
 
-# Chat input
-user_text = st.chat_input("Ask me something…")
+user_text = st.chat_input("Ask about the selected document…")
+
+def extract_cited_chunks(answer: str) -> list[int]:
+    return sorted(set(int(x) for x in re.findall(r"\[chunk\s+(\d+)\]", answer, flags=re.IGNORECASE)))
 
 if user_text:
-    # Add user message to history
     st.session_state.messages.append({"role": "user", "content": user_text})
-    
-    # Display user message
     with st.chat_message("user"):
         st.markdown(user_text)
-    
-    # Generate and display assistant response
+
     with st.chat_message("assistant"):
         placeholder = st.empty()
-        placeholder.markdown("🤔 Thinking…")
-        
-        start_time = time.time()
-        
-        try:
-            # Try to use timeout (Unix only)
-        #     with timeout(120):  # 2 minute timeout
-        #         answer = agent.run(user_text)
-            
-        #     elapsed = time.time() - start_time
-        #     placeholder.markdown(f"{answer}\n\n*Took {elapsed:.1f}s*")
-            
-        # except TimeoutError:
-        #     answer = "⏱️ The agent took too long to respond. Please try a simpler question or try again."
-        #     placeholder.markdown(answer)
+        placeholder.markdown("Thinking...")
 
-         # Simply run the agent without signal-based timeout
-            # The timeout in agent.py (90s) will handle long-running requests
-            answer = agent.run(user_text)
-            elapsed = time.time() - start_time
-            placeholder.markdown(f"{answer}\n\n*Took {elapsed:.1f}s*")
-            
-        except Exception as e:
-            answer = f"❌ Error: {str(e)}"
+        if not current_doc:
+            answer = "Select a document in the sidebar first."
             placeholder.markdown(answer)
-            
-            # Show detailed error in expander
-            with st.expander("🔍 See detailed error"):
-                st.code(repr(e))
-        
-        # Add assistant message to history
-        st.session_state.messages.append({"role": "assistant", "content": answer})
+        else:
+            # Q&A cache: zero model call if repeated question
+            cached = get_cached_answer(current_doc, user_text)
+            if cached:
+                answer = cached
+                placeholder.markdown(answer)
+            else:
+                # Model call: force doc context to remove ambiguity
+                prompt = (
+                    f"Document name: {current_doc}\n"
+                    f"User question: {user_text}\n"
+                    f"Answer the question about this document."
+                )
+                try:
+                    answer = agent.run(prompt)
+                except Exception as e:
+                    answer = f"Error: {e}"
+
+                # Cache the answer
+                set_cached_answer(current_doc, user_text, answer)
+                placeholder.markdown(answer)
+
+        # Show citations (no model call)
+        cited = extract_cited_chunks(answer)
+        if current_doc and cited:
+            with st.expander("Show sources (cited chunks)"):
+                for idx in cited:
+                    chunk_text_val = get_chunk_text_by_index(current_doc, idx)
+                    if chunk_text_val:
+                        st.markdown(f"**[chunk {idx}]**")
+                        st.write(chunk_text_val)
+                    else:
+                        st.markdown(f"**[chunk {idx}]** (not found)")
+
+    st.session_state.messages.append({"role": "assistant", "content": answer})

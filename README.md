@@ -1,40 +1,44 @@
 # 🤖 SmolAgents + Streamlit Demo
 
-A tiny and complete end-to-end project demonstrating agentic AI with tool use:
+A complete end-to-end **document-aware AI agent** built with:
 
-- **smolagents** for agent logic and tool orchestration.
-- **Hugging Face Inference API** for a free, hosted LLM.
-- **Streamlit** for a clean web chat interface.
+- **smolagents** → reasoning + tool orchestration
+- **Hugging Face Inference API** → free hosted LLM
+- **Streamlit** → clean interactive web interface
+- **SQLite + BM25** → local document memory & retrieval
 
-The agent runs on the open model:
+This project evolves the basic agent into a **realistic document assistant with memory**.
 
-`Qwen/Qwen2.5-7B-Instruct`(free tier)
+The agent runs on:
 
-It can intelligently decide when to use Python tools such as:
+`Qwen/Qwen2.5-7B-Instruct` (free tier)
 
-- `get_time(timezone)` – Get current time in any timezone.
-- `word_count(text)` – Count words in a string.
+and can:
 
-This is a minimal production-ready "AI app" you can run locally in minutes, plus an interactive terminal interface for testing!
+- Store documents locally
+- Summarize documents (cached)
+- Answer questions using citations
+- Retrieve exact source excerpts
+- Cache answers to avoid repeated model calls
+- Run mostly **model-free** for cost control
+
+This is a production-style “AI with memory” architecture you can run locally and extend safely.
 
 ## 📁 Project Structure
 
 ```bash
 smol_streamlit_agent/
-├── .env                    # Your HF token (ignored by git)
-├── .gitignore              # Files excluded from version control
-├── requirements.txt        # Python dependencies
-├── README.md               # This file
+├── .env                     # Hugging Face token (ignored by git)
+├── .gitignore
+├── requirements.txt
+├── README.md
 │
-├── tools.py                # Custom Python tools for the agent
-├── agent.py                # Agent construction (smolagents + model)
-├── app.py                  # Streamlit web UI (chat interface)
+├── app.py                   # Streamlit UI
+├── agent.py                 # Agent configuration (smolagents)
+├── tools.py                 # Agent tools (search, summary cache)
+├── storage.py               # SQLite storage + retrieval layer
 │
-└── test/                   # Testing suite
-    ├── test_tools.py       # Test tools directly (fastest)
-    ├── test_agent.py       # Test agent with predefined questions
-    ├── interactive_test.py # Terminal chat interface
-    └── run_all_tests.py    # Run all tests in sequence
+└── doc_agent.db             # Auto-created SQLite database
 ```
 
 ## 🚀 Quick Start
@@ -70,53 +74,6 @@ Create an `.env` file and add your token:
 HUGGINGFACEHUB_API_TOKEN=hf_your_token_here
 ```
 
-## 🧪 Testing (Before running the app)
-
-### 1. Test Tools (Fastest)
-
-```bash
-# Create virtual environment
-python -m venv .venv
-
-# Activate it
-source .venv/bin/activate   # Linux/Mac
-.venv\Scripts\activate      # Windows
-```
-
-### 2. Test Agent
-
-```bash
-python test/test_agent.py
-```
-
-Runs predefined test cases to verify agent functionality.
-
-### 3. Interactive Terminal Chat
-
-```bash
-python test/interactive_test.py
-```
-
-Chat with your agent directly in the terminal:
-
-```
-🤖 INTERACTIVE AGENT TEST
-📦 Model: Qwen/Qwen2.5-7B-Instruct
-💡 Type your questions and press Enter
-
-You: What time is it in Berlin?
-🤖 Agent (took 3.2s): The current time in Berlin is 2024-01-28T15:30:45+01:00
-
-You: quit
-👋 Goodbye!
-```
-
-### Run All Tests at once
-
-```bash
-python test/run_all_tests.py
-```
-
 ## 🌐 Run the App
 
 ```bash
@@ -125,12 +82,105 @@ streamlit run app.py
 
 Open the local URL shown in your terminal (typically http://localhost:8501).
 
-Try prompts like:
+## 🧠 What This Agent Can Do
 
-- "What time is it in Tokyo?"
-- "Count the words in: 'agents are loops with ambition'"
-- "What time is it in Berlin and New York?"
-- "Write a haiku about black holes, then count its words"
+### 📄 Upload documents
+
+Upload `.txt` or text-based PDFs.
+
+Documents are:
+
+- chunked locally
+- stored in SQLite
+- indexed with BM25 search
+- never sent fully to the model
+
+No model call happens during upload.
+
+### 🧾 Summarize documents
+
+Click “Summarize”.
+
+- Uses model once
+- Summary is cached in DB
+- Future calls = zero cost
+
+### 🔎 Ask questions about documents
+
+Example prompts:
+
+- “What is important in this document?”
+- “Summarize the key obligations”
+- “What does it say about refunds?”
+- “List risks mentioned”
+
+The agent:
+
+- Searches document locally (BM25)
+- Sends only relevant chunks to model
+- Answers with citations `[chunk N]`
+- Caches the answer for reuse
+
+Repeated question = zero model call.
+
+### 🧪 Source citations
+
+Every answer includes:
+
+```csharp
+[chunk 3]
+[chunk 7]
+```
+
+You can expand **Show sources** to see exact text used.
+
+This makes answers verifiable and trustworthy.
+
+## ⚙️ Cost-Control Architecture
+
+This project is designed to stay **near-zero cost**.
+
+Model is used ONLY for:
+
+- new summaries
+- new Q&A queries
+
+Model is NOT used for:
+
+- upload/store
+- list docs
+- delete docs
+- retrieval search
+- showing citations
+- cached answers
+
+Caching ensures repeated usage costs nothing.
+
+## 🧠 Agent Tools
+
+The agent has a minimal, safe toolset:
+
+`search_documents(name, query)`: Find relevant chunks using BM25.
+
+`get_cached_summary(name)`: Return stored summary if available.
+
+`save_summary(name, summary)`: Store summary after first generation.
+
+Everything else runs locally in Python/SQLite.
+
+## 🔐 Security & Safety
+
+Safe by design:
+
+- No filesystem access outside project
+- No shell execution
+- No arbitrary web requests
+- Local SQLite storage only
+- Input size limits
+- No hidden model loops
+- Deterministic operations first
+
+This makes it safe to deploy publicly with basic auth.
 
 ## ⚙️ Configuration
 
@@ -181,24 +231,15 @@ agent = CodeAgent(
 )
 ```
 
-## 🎓 Learning Resources
+## 🎓 What This Project Teaches
 
-- [smolagents Documentation](https://github.com/huggingface/smolagents)
-- [Streamlit Documentation](https://docs.streamlit.io/)
-- [Hugging Face Inference API](https://huggingface.co/docs/api-inference)
-- [Building AI Agents Guide](https://huggingface.co/blog/smolagents)
+This is not just a chatbot.
 
-## 📝 Notes
+It demonstrates:
 
-- The **Hugging Face free tier** has rate limits and occasional cold starts.
-- `Qwen 2.5 7B` provides the best balance of speed and capability for free.
-- This project is intentionally minimal: it's a **learning scaffold**showing how agents, tools, models, and UI fit together.
-- All code is production-ready with proper error handling and testing.
-
-## Next Steps
-
-1. **Add more tools** (weather API, calculator, web search)
-2. **Integrate with external APIs** (news, stocks, etc.)
-3. **Deploy to cloud** (Streamlit Cloud, HF Spaces)
-4. **Add conversation memory** for multi-turn dialogues
-5. **Implement RAG** (Retrieval Augmented Generation)
+- Agent + tools architecture
+- Retrieval Augmented Generation (RAG)
+- Memory + caching design
+- Cost-controlled LLM usage
+- Verifiable AI with citations
+- Production-safe tool design

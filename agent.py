@@ -1,62 +1,45 @@
-"""
-Agent configuration and initialization.
-"""
 import os
 from smolagents import CodeAgent, InferenceClientModel
-from tools import get_time, word_count
+from tools import search_documents, get_cached_summary, save_summary
 
-# Using the free 7B model - best balance of speed and capability
-MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
+MODEL_ID = os.getenv("MODEL_ID", "Qwen/Qwen2.5-7B-Instruct")
 
-def build_agent(verbose: int = 1):
-    """
-    Build and return a configured agent.
-    
-    Args:
-        verbose: Verbosity level (0=silent, 1=basic, 2=detailed)
-    
-    Returns:
-        CodeAgent instance ready to use
-    """
-    # Get token from environment
+def build_agent(verbose: int = 0):
     token = os.getenv("HUGGINGFACEHUB_API_TOKEN") or os.getenv("HF_TOKEN")
-    
     if not token:
-        raise RuntimeError(
-            "Missing Hugging Face token!\n"
-            "Please set HUGGINGFACEHUB_API_TOKEN in your .env file.\n"
-            "Get your token from: https://huggingface.co/settings/tokens"
-        )
-    
-    # Initialize the model
+        raise RuntimeError("Missing Hugging Face token (HUGGINGFACEHUB_API_TOKEN or HF_TOKEN).")
+
     model = InferenceClientModel(
         model_id=MODEL_ID,
         token=token,
-        temperature=0.2,  # Lower temperature for more focused responses
-        max_tokens=1500,
-        timeout=90,  # 90 second timeout for API calls
+        temperature=0.2,
+        max_tokens=700,   # keep modest for free tier
+        timeout=60,
     )
-    
-    # Create the agent (removed verbose parameter)
-    agent = CodeAgent(
-        tools=[get_time, word_count],
-        model=model,
-        add_base_tools=False,  # Only use our custom tools
-        max_steps=5,  # Prevent infinite reasoning loops
-    )
-    
-    # Set verbosity level on the agent after creation
-    agent.verbose = verbose
-    
-    return agent
 
-if __name__ == "__main__":
-    # Quick test when running this file directly
-    from dotenv import load_dotenv
-    load_dotenv()
-    
-    print("🔧 Building agent...")
-    agent = build_agent(verbose=2)
-    print("✅ Agent built successfully!")
-    print(f"📦 Model: {MODEL_ID}")
-    print(f"🛠️  Tools: {[tool.name for tool in agent.tools]}")
+    agent = CodeAgent(
+        tools=[search_documents, get_cached_summary, save_summary],
+        model=model,
+        add_base_tools=False,
+        max_steps=4,
+    )
+
+    agent.verbose = int(verbose)
+
+    try:
+        agent.system_prompt = (
+            "You are a document assistant. Be concise.\n"
+            "For Q&A:\n"
+            "- ALWAYS call search_documents(name, query) first.\n"
+            "- Answer using only the returned excerpts.\n"
+            "- Include citations in the form [chunk N] in the final answer.\n"
+            "- If evidence is missing, say you cannot find it.\n"
+            "For summaries:\n"
+            "- Call get_cached_summary(name) first.\n"
+            "- If missing, create a concise summary and then call save_summary(name, summary).\n"
+            "Never invent citations."
+        )
+    except Exception:
+        pass
+
+    return agent
