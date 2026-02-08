@@ -3,3 +3,8 @@ python-dotenv
 smolagents
 pytz
 huggingface_hub
+
+pypdf
+rank-bm25
+uvicorn
+
