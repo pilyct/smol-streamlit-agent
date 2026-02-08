@@ -84,7 +84,7 @@ Open the local URL shown in your terminal (typically http://localhost:8501).
 
 ## 🧠 What This Agent Can Do
 
-### 📄 Upload documents
+### 📄 <ins>Upload documents</ins>
 
 Upload `.txt` or text-based PDFs.
 
@@ -97,7 +97,7 @@ Documents are:
 
 No model call happens during upload.
 
-### 🧾 Summarize documents
+### 🧾 <ins>Summarize documents</ins>
 
 Click “Summarize”.
 
@@ -105,7 +105,7 @@ Click “Summarize”.
 - Summary is cached in DB
 - Future calls = zero cost
 
-### 🔎 Ask questions about documents
+### 🔎 <ins>Ask questions about documents</ins>
 
 Example prompts:
 
@@ -123,7 +123,7 @@ The agent:
 
 Repeated question = zero model call.
 
-### 🧪 Source citations
+### 🧪 <ins>Source citations</ins>
 
 Every answer includes:
 
