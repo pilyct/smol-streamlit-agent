@@ -1,4 +1,4 @@
-# 🤖 SmolAgents + Streamlit Demo
+# 🤖 SmolAgents + Streamlit Document Memory Agent
 
 A complete end-to-end **document-aware AI agent** built with:
 
@@ -7,7 +7,7 @@ A complete end-to-end **document-aware AI agent** built with:
 - **Streamlit** → clean interactive web interface
 - **SQLite + BM25** → local document memory & retrieval
 
-This project evolves the basic agent into a **realistic document assistant with memory**.
+This project evolves a simple tool-using agent into a **realistic document assistant with persistent memory, caching, and tests**.
 
 The agent runs on:
 
@@ -21,24 +21,37 @@ and can:
 - Retrieve exact source excerpts
 - Cache answers to avoid repeated model calls
 - Run mostly **model-free** for cost control
+- Be fully tested with a local test suite
 
 This is a production-style “AI with memory” architecture you can run locally and extend safely.
 
-## 📁 Project Structure
+---
+
+# 📁 Project Structure
 
 ```bash
 smol_streamlit_agent/
 ├── .env                     # Hugging Face token (ignored by git)
 ├── .gitignore
 ├── requirements.txt
+├── pytest.ini               # Pytest configuration (optional but recommended)
 ├── README.md
 │
-├── app.py                   # Streamlit UI
-├── agent.py                 # Agent configuration (smolagents)
-├── tools.py                 # Agent tools (search, summary cache)
-├── storage.py               # SQLite storage + retrieval layer
+├── doc_agent/               # Main package
+│   ├── __init__.py
+│   ├── app.py               # Streamlit UI
+│   ├── agent.py             # Agent configuration (smolagents)
+│   ├── tools.py             # Agent tools (search, summary cache)
+│   └── storage.py           # SQLite storage + retrieval layer
 │
-└── doc_agent.db             # Auto-created SQLite database
+├── tests/                   # Test suite
+│   ├── conftest.py          # Test configuration + temp DB
+│   ├── test_storage.py      # Storage layer tests
+│   ├── test_tools.py        # Tool tests
+│   ├── test_agent_smoke.py  # Agent build tests (no model call)
+│   └── test_agent_live.py   # Optional live model tests
+│
+└── doc_agent.db             # Auto-created SQLite database (ignored by git)
 ```
 
 ## 🚀 Quick Start
@@ -123,7 +136,7 @@ The agent:
 
 Repeated question = zero model call.
 
-### 🧪 <ins>Source citations</ins>
+### 📚 <ins>Source citations</ins>
 
 Every answer includes:
 
@@ -135,6 +148,24 @@ Every answer includes:
 You can expand **Show sources** to see exact text used.
 
 This makes answers verifiable and trustworthy.
+
+## 🧪 Testing
+
+The project includes a complete test suite covering storage, tools, and agent setup.
+
+Run all tests:
+
+```bash
+pytest # or `pytest -v` (shows each test name and status)
+```
+
+Run specific test groups:
+
+```bash
+pytest tests/test_storage.py
+pytest tests/test_tools.py
+pytest tests/test_agent_smoke.py
+```
 
 ## ⚙️ Cost-Control Architecture
 
