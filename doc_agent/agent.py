@@ -1,6 +1,6 @@
 import os
 from smolagents import CodeAgent, InferenceClientModel
-from tools import search_documents, get_cached_summary, save_summary
+from doc_agent.tools import search_documents, get_cached_summary, save_summary
 
 MODEL_ID = os.getenv("MODEL_ID", "Qwen/Qwen2.5-7B-Instruct")
 

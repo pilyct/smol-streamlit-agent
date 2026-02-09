@@ -8,3 +8,5 @@ pypdf
 rank-bm25
 uvicorn
 
+pytest
+

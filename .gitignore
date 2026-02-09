@@ -1,5 +1,7 @@
 # --- Secrets ---
 .env
+.env.*
+!.env.example
 
 # --- Python ---
 __pycache__/
@@ -17,6 +19,7 @@ env/
 
 # --- Streamlit ---
 .streamlit/secrets.toml
+.streamlit/config.toml
 
 # --- OS / editor noise ---
 .DS_Store
@@ -24,7 +27,7 @@ Thumbs.db
 .vscode/
 .idea/
 
-# --- Databases ---
+# --- Databases & local data ---
 data/
 uploads/
 
@@ -32,8 +35,6 @@ uploads/
 *.db
 *.sqlite
 *.sqlite3
-
-# Specific project DB
 doc_agent.db
 
 # SQLite temp/journal files
@@ -42,5 +43,13 @@ doc_agent.db
 *.db-wal
 *.db-shm
 
-# --- Test (temporal) ---
-test/
+# --- Tests / reports ---
+pytest_cache
+.pytest_cache/
+.coverage
+htmlcov/
+reports/
+
+# --- Logs (future-proof) ---
+*.log
+logs/

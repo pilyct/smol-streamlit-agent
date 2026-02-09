@@ -1,6 +1,6 @@
 from smolagents import tool
 from rank_bm25 import BM25Okapi
-from storage import get_chunks_for_doc, get_summary, set_summary
+from doc_agent.storage import get_chunks_for_doc, get_summary, set_summary
 
 MAX_ANSWER_CHUNKS = 5
 
