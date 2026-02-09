@@ -4,8 +4,8 @@ import streamlit as st
 from dotenv import load_dotenv
 from pypdf import PdfReader
 
-from agent import build_agent
-from storage import (
+from doc_agent.agent import build_agent
+from doc_agent.storage import (
     init_db, upsert_document, insert_chunks, chunk_text,
     list_documents, delete_document,
     get_cached_answer, set_cached_answer,
