@@ -9,17 +9,17 @@ A complete end-to-end **document-aware AI agent** built with:
 
 This project evolves a simple tool-using agent into a **realistic document assistant with persistent memory, caching, and tests**.
 
-<p align="center">
-  <img src="./public/dark-Home.png?raw=true" width="250" height="200">
-  <img src="./public/dark-Upload.png?raw=true" width="250" height="200">
-  <img src="./public/dark-Documents.png?raw=true" width="250" height="200">
-  <img src="./public/dark-Chat.png?raw=true" width="250" height="200">
+<p align="start">
+  <img src="./public/dark-Home.png?raw=true" width="250" height="250">
+  <img src="./public/dark-Upload.png?raw=true" width="250" height="250">
+  <img src="./public/dark-Documents.png?raw=true" width="250" height="250">
+  <img src="./public/dark-Chat.png?raw=true" width="250" height="250">
 </p>
-<p align="center">
-  <img src="./public/light-Home.png?raw=true" width="250" height="200">
-  <img src="./public/light-Upload.png?raw=true" width="250" height="200">
-  <img src="./public/light-Documents.png?raw=true" width="250" height="200">
-  <img src="./public/light-Chat.png?raw=true" width="250" height="200">
+<p align="start">
+  <img src="./public/light-Home.png?raw=true" width="250" height="250">
+  <img src="./public/light-Upload.png?raw=true" width="250" height="250">
+  <img src="./public/light-Documents.png?raw=true" width="250" height="250">
+  <img src="./public/light-Chat.png?raw=true" width="250" height="250">
 </p>
 
 The agent runs on:
