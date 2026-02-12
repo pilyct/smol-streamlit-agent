@@ -9,13 +9,13 @@ A complete end-to-end **document-aware AI agent** built with:
 
 This project evolves a simple tool-using agent into a **realistic document assistant with persistent memory, caching, and tests**.
 
-<p align="start top">
+<p align="center">
   <img src="./public/dark-Home.png?raw=true" width="420" height="400">
   <img src="./public/dark-Upload.png?raw=true" width="420" height="400">
   <img src="./public/dark-Documents.png?raw=true" width="420" height="400">
   <img src="./public/dark-Chat.png?raw=true" width="420" height="400">
 </p>
-<p align="start">
+<p align="center">
   <img src="./public/light-Home.png?raw=true" width="420" height="400">
   <img src="./public/light-Upload.png?raw=true" width="420" height="400">
   <img src="./public/light-Documents.png?raw=true" width="420" height="400">
