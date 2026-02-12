@@ -1,4 +1,4 @@
-from doc_agent.main import main
+import streamlit as st
 
-if __name__ == "__main__":
-    main()
+st.switch_page("pages/Home.py")
+

@@ -18,6 +18,7 @@ venv/
 env/
 
 # --- Streamlit ---
+.streamlit/
 .streamlit/secrets.toml
 .streamlit/config.toml
 
@@ -53,3 +54,6 @@ reports/
 # --- Logs (future-proof) ---
 *.log
 logs/
+
+# --- Other ---
+main_legacy_single_page.py
