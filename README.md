@@ -22,6 +22,8 @@ This project evolves a simple tool-using agent into a **realistic document assis
   <img src="./public/light-Chat.png?raw=true" width="200" height="200">
 </p>
 
+![Alt Text](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmIyMGs0aGZjZDN0aGZ0dThudWV6MTU4MDF4NG16NzhhOGJiZWU5YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WJHom4XJuK8GrjTidm/giphy.gif)
+
 The agent runs on:
 
 `Qwen/Qwen2.5-7B-Instruct` (free tier)
