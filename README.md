@@ -10,16 +10,16 @@ A complete end-to-end **document-aware AI agent** built with:
 This project evolves a simple tool-using agent into a **realistic document assistant with persistent memory, caching, and tests**.
 
 <p align="center">
-  <img src="./public/dark-Home.png?raw=true" width="420" height="400">
-  <img src="./public/dark-Upload.png?raw=true" width="420" height="400">
-  <img src="./public/dark-Documents.png?raw=true" width="420" height="400">
-  <img src="./public/dark-Chat.png?raw=true" width="420" height="400">
+  <img src="./public/dark-Home.png?raw=true" width="400" height="380">
+  <img src="./public/dark-Upload.png?raw=true" width="400" height="380">
+  <img src="./public/dark-Documents.png?raw=true" width="400" height="380">
+  <img src="./public/dark-Chat.png?raw=true" width="400" height="380">
 </p>
 <p align="center">
-  <img src="./public/light-Home.png?raw=true" width="420" height="400">
-  <img src="./public/light-Upload.png?raw=true" width="420" height="400">
-  <img src="./public/light-Documents.png?raw=true" width="420" height="400">
-  <img src="./public/light-Chat.png?raw=true" width="420" height="400">
+  <img src="./public/light-Home.png?raw=true" width="400" height="380">
+  <img src="./public/light-Upload.png?raw=true" width="400" height="380">
+  <img src="./public/light-Documents.png?raw=true" width="400" height="380">
+  <img src="./public/light-Chat.png?raw=true" width="400" height="380">
 </p>
 
 <!-- ![Alt Text](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmIyMGs0aGZjZDN0aGZ0dThudWV6MTU4MDF4NG16NzhhOGJiZWU5YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WJHom4XJuK8GrjTidm/giphy.gif) -->
