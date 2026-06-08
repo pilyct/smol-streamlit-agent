@@ -27,7 +27,7 @@ pandas==2.3.3
 pillow==12.2.0
 pluggy==1.6.0
 protobuf==6.33.5
-pyarrow==23.0.0
+pyarrow==23.0.1
 pydeck==0.9.1
 Pygments==2.20.0
 pypdf==6.10.2
