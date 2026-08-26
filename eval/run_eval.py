@@ -1,8 +1,11 @@
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+os.environ.setdefault("DOC_AGENT_DB", str(Path(__file__).parent / "eval.db"))
 
 from doc_agent.storage import (
     init_db,
