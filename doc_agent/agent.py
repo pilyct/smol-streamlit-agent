@@ -28,9 +28,8 @@ def build_agent(verbose: int = 0):
         # (CVE-2025-9959 / GHSA-jxgv-6j54-wwc7); keeping this empty removes
         # the specific SSRF/injection vectors those advisories describe.
         additional_authorized_imports=[],
+        verbosity_level=int(verbose),
     )
-
-    agent.verbose = int(verbose)
 
     try:
         agent.system_prompt = (
