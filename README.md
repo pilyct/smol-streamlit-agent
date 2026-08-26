@@ -182,6 +182,27 @@ pytest tests/test_tools.py
 pytest tests/test_agent_smoke.py
 ```
 
+## 📊 Evaluation
+
+`eval/run_eval.py` scores the agent on 18 questions (`eval/questions.yaml`)
+across three fixture documents, measuring correctness, citation accuracy,
+and groundedness (does it abstain instead of guessing when it should).
+
+```bash
+python eval/run_eval.py                                      # seed, run, score, report
+python eval/run_eval.py --replay eval/results/run_<ts>.json   # re-score a past run, no API calls
+```
+
+```
+=== Eval summary ===
+Mean correctness (non-abstain): 0.87
+Citation match rate: 93%
+Groundedness pass rate (abstain): 100%
+Errors: 0/18
+```
+
+A per-question CSV lands in `eval/results/report_<timestamp>.csv` for a closer look.
+
 ## ⚙️ Cost-Control Architecture
 
 This project is designed to stay **near-zero cost**.
