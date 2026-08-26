@@ -22,6 +22,12 @@ def build_agent(verbose: int = 0):
         model=model,
         add_base_tools=False,
         max_steps=4,
+        # Explicitly pin the sandbox to no extra imports (no requests, os,
+        # subprocess, socket, ...) on top of smolagents' own minimal default.
+        # This is a known-incomplete area of smolagents' local code executor
+        # (CVE-2025-9959 / GHSA-jxgv-6j54-wwc7); keeping this empty removes
+        # the specific SSRF/injection vectors those advisories describe.
+        additional_authorized_imports=[],
     )
 
     agent.verbose = int(verbose)
