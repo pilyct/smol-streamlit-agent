@@ -51,6 +51,9 @@ pytest_cache
 htmlcov/
 reports/
 
+# --- Eval run artifacts ---
+eval/results/
+
 # --- Logs (future-proof) ---
 *.log
 logs/
