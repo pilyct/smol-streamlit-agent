@@ -1,0 +1,156 @@
+# Eval question set.
+#
+# Each entry:
+#   id:                 unique short id, prefixed by doc (hw-, li-, ls-)
+#   doc:                document name as stored in eval.db
+#   question:           the question to ask the agent
+#   expected_keywords:  terms that must appear in the answer to count as correct
+#                        (empty for abstention questions)
+#   expected_chunks:    chunk index/indices that contain the answer
+#                        (empty for abstention questions)
+#   expects_abstain:    true if the corpus does not answer this question
+#   difficulty:         direct | synthesis | abstain
+
+- id: hw-01
+  doc: Home_Workout_Routine
+  question: "How many sets of Goblet Squats are prescribed on Day 1, and with what weight?"
+  expected_keywords: ["Goblet Squats", "3 sets", "6kg"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: direct
+
+- id: hw-02
+  doc: Home_Workout_Routine
+  question: "What equipment is listed as needed for this workout routine?"
+  expected_keywords: ["resistance bands", "jump rope", "hula hoop"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: direct
+
+- id: hw-03
+  doc: Home_Workout_Routine
+  question: "What exercise or activity is recommended on Day 3?"
+  expected_keywords: ["hula hoop", "stretching"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: direct
+
+- id: hw-04
+  doc: Home_Workout_Routine
+  question: "Which two days of the week focus most on core strength work, and what do the exercises on those two days have in common?"
+  expected_keywords: ["Day 2", "Day 6", "core"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: synthesis
+
+- id: hw-05
+  doc: Home_Workout_Routine
+  question: "How many calories does this workout routine burn per session?"
+  expected_keywords: []
+  expected_chunks: []
+  expects_abstain: true
+  difficulty: abstain
+
+- id: li-01
+  doc: LinkedIn_Profile
+  question: "What is Jamie's current professional tagline on the profile?"
+  expected_keywords: ["Full-Stack Developer", "Data Analyst", "AI Practitioner"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: direct
+
+- id: li-02
+  doc: LinkedIn_Profile
+  question: "What company did Jamie work for as Founding Engineer, and what technologies were used there?"
+  expected_keywords: ["Nimbus Labs", "TypeScript", "Next.js", "React"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: direct
+
+- id: li-03
+  doc: LinkedIn_Profile
+  question: "What tools did Jamie use as a Junior Data Scientist?"
+  expected_keywords: ["Power BI", "Tableau", "Shiny"]
+  expected_chunks: [1]
+  expects_abstain: false
+  difficulty: direct
+
+- id: li-04
+  doc: LinkedIn_Profile
+  question: "Which university did Jamie attend for a Master of Arts in International Relations & Cultural Diplomacy?"
+  expected_keywords: ["Fictional University of Arts and Sciences", "Master of Arts", "International Relations"]
+  expected_chunks: [1]
+  expects_abstain: false
+  difficulty: direct
+
+- id: li-05
+  doc: LinkedIn_Profile
+  question: "How did Jamie's career progress from the earlier data science roles to the more recent software engineering roles?"
+  expected_keywords: ["Data Scientist", "Full Stack Developer", "Founding Engineer"]
+  expected_chunks: [0, 1]
+  expects_abstain: false
+  difficulty: synthesis
+
+- id: li-06
+  doc: LinkedIn_Profile
+  question: "Based on both the work experience and the top skills listed, what combination of design and data skills does Jamie bring?"
+  expected_keywords: ["Interface design", "User Experience", "Data Scientist"]
+  expected_chunks: [0, 1]
+  expects_abstain: false
+  difficulty: synthesis
+
+- id: li-07
+  doc: LinkedIn_Profile
+  question: "What is Jamie's current salary?"
+  expected_keywords: []
+  expected_chunks: []
+  expects_abstain: true
+  difficulty: abstain
+
+- id: ls-01
+  doc: Life_Story
+  question: "On what day of the week did Mira's life quietly begin, according to the story?"
+  expected_keywords: ["Tuesday"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: direct
+
+- id: ls-02
+  doc: Life_Story
+  question: "What did the old woman in the park say to Mira after Mira admitted she looked like she'd just woken up?"
+  expected_keywords: ["Good", "sleep through the interesting parts"]
+  expected_chunks: [1]
+  expects_abstain: false
+  difficulty: direct
+
+- id: ls-03
+  doc: Life_Story
+  question: "What animal strutted past Mira's shoes 'with the confidence of a small emperor'?"
+  expected_keywords: ["pigeon"]
+  expected_chunks: [0]
+  expects_abstain: false
+  difficulty: direct
+
+- id: ls-04
+  doc: Life_Story
+  question: "How did Mira's daily routine before that Tuesday differ from how she began to live afterward?"
+  expected_keywords: ["Wake. Work. Reply. Sleep", "slowed down", "collecting moments"]
+  expected_chunks: [0, 1]
+  expects_abstain: false
+  difficulty: synthesis
+
+- id: ls-05
+  doc: Life_Story
+  question: "Based on the story's closing reflections, what does it suggest actually makes a person's life 'begin'?"
+  expected_keywords: ["quiet moments", "notice", "participate"]
+  expected_chunks: [1, 2]
+  expects_abstain: false
+  difficulty: synthesis
+
+- id: ls-06
+  doc: Life_Story
+  question: "What is Mira's job title in Life_Story?"
+  expected_keywords: []
+  expected_chunks: []
+  expects_abstain: true
+  difficulty: abstain
