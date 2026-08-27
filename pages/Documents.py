@@ -4,6 +4,56 @@ from ui.common import app_setup, init_ui_state, get_agent
 from doc_agent.storage import list_documents, delete_document
 
 
+def _render_documents_header() -> None:
+    h1, h2, h3, h4 = st.columns([3, 2, 1.6, 1.3], vertical_alignment="center")
+    h1.write("**Document**")
+    h2.write("**Created**")
+    h3.write("**Actions**")
+    h4.write("")
+
+
+def _handle_delete(name: str) -> None:
+    delete_document(name)
+    if st.session_state.selected_doc == name:
+        st.session_state.selected_doc = None
+    if st.session_state.latest_summary_doc == name:
+        st.session_state.latest_summary = None
+        st.session_state.latest_summary_doc = None
+    st.rerun()
+
+
+def _render_document_row(agent, name: str, created: str) -> None:
+    c1, c2, c3, c4 = st.columns([3, 2, 1.6, 1.3], vertical_alignment="center")
+
+    is_selected = st.session_state.selected_doc == name
+    label = f"• {name}" if is_selected else name
+
+    if c1.button(label, key=f"select_{name}"):
+        st.session_state.selected_doc = name
+
+    c2.write(created)
+
+    if c3.button("Summarize", key=f"sum_{name}", icon=":material/summarize:"):
+        st.session_state.selected_doc = name
+        summary = agent.run(f"Summarize the document named '{name}'.")
+        st.session_state.latest_summary = summary
+        st.session_state.latest_summary_doc = name
+
+    if c4.button("Delete", key=f"del_{name}", icon=":material/delete:"):
+        _handle_delete(name)
+
+
+def _render_summary_section() -> None:
+    if st.session_state.latest_summary:
+        st.subheader(f"Summary: {st.session_state.latest_summary_doc}")
+        st.write(st.session_state.latest_summary)
+
+    if st.session_state.selected_doc:
+        st.info(f"Selected document: {st.session_state.selected_doc}")
+        if st.button("Open chat", use_container_width=True):
+            st.switch_page("pages/Chat.py")
+
+
 def main() -> None:
     app_setup(page_title="Doc Agent | Documents", layout="centered")
     init_ui_state()
@@ -22,48 +72,12 @@ def main() -> None:
         st.caption("No documents stored yet.")
         return
 
-    h1, h2, h3, h4 = st.columns([3, 2, 1.6, 1.3], vertical_alignment="center")
-    h1.write("**Document**")
-    h2.write("**Created**")
-    h3.write("**Actions**")
-    h4.write("")
-
+    _render_documents_header()
     for name, created in docs:
-        c1, c2, c3, c4 = st.columns([3, 2, 1.6, 1.3], vertical_alignment="center")
-
-        is_selected = st.session_state.selected_doc == name
-        label = f"• {name}" if is_selected else name
-
-        if c1.button(label, key=f"select_{name}"):
-            st.session_state.selected_doc = name
-
-        c2.write(created)
-
-        if c3.button("Summarize", key=f"sum_{name}", icon=":material/summarize:"):
-            st.session_state.selected_doc = name
-            summary = agent.run(f"Summarize the document named '{name}'.")
-            st.session_state.latest_summary = summary
-            st.session_state.latest_summary_doc = name
-
-        if c4.button("Delete", key=f"del_{name}", icon=":material/delete:"):
-            delete_document(name)
-            if st.session_state.selected_doc == name:
-                st.session_state.selected_doc = None
-            if st.session_state.latest_summary_doc == name:
-                st.session_state.latest_summary = None
-                st.session_state.latest_summary_doc = None
-            st.rerun()
+        _render_document_row(agent, name, created)
 
     st.divider()
-
-    if st.session_state.latest_summary:
-        st.subheader(f"Summary: {st.session_state.latest_summary_doc}")
-        st.write(st.session_state.latest_summary)
-
-    if st.session_state.selected_doc:
-        st.info(f"Selected document: {st.session_state.selected_doc}")
-        if st.button("Open chat", use_container_width=True):
-            st.switch_page("pages/Chat.py")
+    _render_summary_section()
 
 
 main()
