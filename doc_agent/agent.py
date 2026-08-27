@@ -18,13 +18,24 @@ def build_agent(verbose: int = 0):
     )
 
     agent = CodeAgent(
+        # Only these 3 first-party tools are exposed; none of them touch the
+        # filesystem, network, or a subshell, so there is nothing for
+        # generated code to pivot to even though it runs in-process.
         tools=[search_documents, get_cached_summary, save_summary],
         model=model,
         add_base_tools=False,
         max_steps=4,
+        # Explicitly pin the sandbox to no extra imports (no requests, os,
+        # subprocess, socket, ...) on top of smolagents' own minimal default.
+        # This is a known-incomplete area of smolagents' local code executor
+        # (CVE-2025-9959 / GHSA-jxgv-6j54-wwc7); keeping this empty removes
+        # the specific SSRF/injection vectors those advisories describe.
+        additional_authorized_imports=[],
+        # Cap captured print() output so a runaway loop can't exhaust memory
+        # via stdout buffering.
+        max_print_outputs_length=2000,
+        verbosity_level=int(verbose),
     )
-
-    agent.verbose = int(verbose)
 
     try:
         agent.system_prompt = (

@@ -19,6 +19,7 @@ from typing import List, Optional, Tuple
 import json
 
 DB_PATH = os.getenv("DOC_AGENT_DB", "doc_agent.db")
+SELECT_DOC_ID_BY_NAME = "SELECT id FROM documents WHERE name=?;"
 
 # -------------------------
 # Tokenization + chunking
@@ -170,7 +171,7 @@ def delete_document(name: str):
     """
     with sqlite3.connect(DB_PATH) as con:
         row = con.execute(
-            "SELECT id FROM documents WHERE name=?;",
+            SELECT_DOC_ID_BY_NAME,
             (name,),
         ).fetchone()
 
@@ -236,7 +237,7 @@ def get_document_text(name: str) -> Optional[str]:
     """
     with sqlite3.connect(DB_PATH) as con:
         row = con.execute(
-            "SELECT id FROM documents WHERE name=?;",
+            SELECT_DOC_ID_BY_NAME,
             (name,),
         ).fetchone()
 
@@ -264,7 +265,7 @@ def get_chunks_for_doc(name: str) -> List[Tuple[int, int, str, List[str]]]:
     """
     with sqlite3.connect(DB_PATH) as con:
         row = con.execute(
-            "SELECT id FROM documents WHERE name=?;",
+            SELECT_DOC_ID_BY_NAME,
             (name,),
         ).fetchone()
 

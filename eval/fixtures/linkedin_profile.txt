@@ -1,0 +1,101 @@
+Contact
+jamie.doe@example.com
+www.linkedin.com/in/jamiedoe
+(LinkedIn)
+www.jamiedoe.dev (Portfolio)
+Top Skills
+Interface design
+Design
+User Experience (UX)
+Languages
+French (Limited Working)
+English (Native or Bilingual)
+German (Full Professional)
+Certifications
+AI Agents Fundamentals
+French Teacher Certificate ||
+Certificat de Professeurs de Français Langue Étrangère
+Learn JavaScript Course
+Jamie Doe
+Full-Stack Developer ⦁ Data Analyst ⦁ AI Practitioner in Progress
+Amsterdam Metropolitan Area
+Summary
+Hello everyone!
+I'm Jamie — a linguist turned developer who swapped lesson plans for
+pull requests.
+These days you'll find me coding, wrangling data, breaking (and
+fixing) things, and occasionally obsessing over design details. I like
+building stuff that works, looks good, and makes sense — ideally all
+three at once.
+Come say hi: www.jamiedoe.dev
+⦁TechExplorer ⦁DesignEnthusiast
+Experience
+Nimbus Labs
+Founding Engineer
+October 2024 - May 2025 (8 months)
+Amsterdam, Netherlands
+Worked on frontend development and API integration to improve platform
+performance and user experience. Helped automate testing workflows and
+participated in UX discussions to align features with user needs. Built scalable
+solutions using TypeScript, Next.js, React, FastAPI, MySQL, PostgreSQL, and
+AWS.
+RideWorks
+Full Stack Developer
+November 2023 - April 2024 (6 months)
+Amsterdam, Netherlands
+Worked across frontend and backend development to enhance app
+functionality and user experience. Designed and implemented key features,
+including trip and vehicle management, chat messaging, trip history, push
+notifications, and user profiles. Supported the migration from JavaScript to
+TypeScript and contributed to backend route development for seamless app
+  Page 1 of 3
+
+performance. Collaborated in a structured Agile environment using TypeScript,
+React Native, Expo, Node.js, Express.js, and MongoDB.
+NORTHBEAM GROUP
+4 years
+Data Scientist
+2021 - 2023 (2 years)
+Amsterdam, Netherlands
+Built and maintained data pipelines for FTSE 100 clients, automated workflows,
+and resolved data processing and storage issues. Developed dashboards
+in Power BI and Tableau contributing to UX design through prototypes
+and mockups. Conducted Tableau training and supported the creation of
+style guides and design systems. Gained exposure to both frontend and
+backend development using Streamlit and Flask. Worked with Python, R, SQL,
+Microsoft Azure, Flask, Streamlit, Shiny, and Figma.
+Junior Data Scientist
+2019 - 2021 (2 years)
+Amsterdam Area, Netherlands
+Supported the development of dashboards using Power BI, Tableau, and
+Shiny (R) to deliver data-driven insights. Performed data wrangling and
+analysis with Python and R, and gained experience with data integration and
+automation using Microsoft Azure. Utilized tools such as Talkwalker, Google
+Analytics, Google Data Studio, and Socialbakers to support digital analytics
+initiatives.
+Associate Data - Data Science Internship
+2019 - 2019 (less than a year)
+Amsterdam, Netherlands
+Beacon Analytics
+Data Science | Data Analysis Internship
+2019 - 2019 (less than a year)
+Amsterdam Area, Netherlands
+BOOTCAMP FINAL PROJECT
+Introduction to NLP techniques:
+- Topic Modelling - LDA model (Python & R)
+- Sentiment Analysis (R)
+  Page 2 of 3
+
+Education
+DevForge Academy
+Software Engineering · (2023)
+Datawise Code Academy
+Data Analysis & Big Data Trainee · (2018 - 2019)
+Fictional University of Arts and Sciences
+Master of Arts (M.A.) in International Relations & Cultural
+Diplomacy · (2016 - 2018)
+Lingua & Letters Institute & European University of Rotterdam
+French Language Teacher Education · (2016 - 2016)
+University of Coastal Studies
+Bachelor of Arabic and Islamic studies · (2011 - 2015)
+  Page 3 of 3
