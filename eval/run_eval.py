@@ -237,7 +237,13 @@ def main() -> None:
     questions = load_questions()
 
     if args.replay:
-        results_path = args.replay
+        results_path = args.replay.resolve()
+        try:
+            results_path.relative_to(RESULTS_DIR.resolve())
+        except ValueError:
+            parser.error(f"--replay must point to a file inside {RESULTS_DIR}")
+        if not results_path.is_file():
+            parser.error(f"--replay path does not exist: {results_path}")
         with results_path.open(encoding="utf-8") as f:
             results = json.load(f)
         run_id = _run_id_from_results_path(results_path)
