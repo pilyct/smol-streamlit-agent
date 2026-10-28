@@ -20,3 +20,12 @@ def test_agent_builds_without_model_call(monkeypatch):
     assert "get_cached_summary" in tool_names
     assert "save_summary" in tool_names
 
+
+
+def test_agent_does_not_retry_rate_limits(monkeypatch):
+    monkeypatch.setenv("HUGGINGFACEHUB_API_TOKEN", "hf_dummy_token")
+
+    from doc_agent.agent import build_agent
+    a = build_agent(verbose=0)
+
+    assert a.model.retryer.max_attempts == 1
