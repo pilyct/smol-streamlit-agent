@@ -15,6 +15,10 @@ def build_agent(verbose: int = 0):
         temperature=0.2,
         max_tokens=700,   # keep modest for free tier
         timeout=60,
+        # smolagents retries rate limits (429) up to 3 times, waiting about
+        # a minute between attempts, which leaves users stuck on "Thinking...".
+        # Fail fast instead and let the UI show a "too many requests" message.
+        retry=False,
     )
 
     agent = CodeAgent(
