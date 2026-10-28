@@ -1,6 +1,6 @@
 import streamlit as st
 
-from ui.common import app_setup, init_ui_state, run_agent
+from ui.common import MODEL_AVAILABLE, MODEL_UNAVAILABLE_MESSAGE, app_setup, init_ui_state, run_agent
 from doc_agent.storage import list_documents, delete_document, get_summary, set_summary
 
 
@@ -46,7 +46,15 @@ def _render_document_row(name: str, created: str) -> None:
 
     c2.write(created)
 
-    if c3.button("Summarize", key=f"sum_{name}", icon=":material/summarize:"):
+    # Cached summaries need no model, so Summarize stays enabled for them.
+    can_summarize = MODEL_AVAILABLE or get_summary(name) is not None
+    if c3.button(
+        "Summarize",
+        key=f"sum_{name}",
+        icon=":material/summarize:",
+        disabled=not can_summarize,
+        help=None if can_summarize else MODEL_UNAVAILABLE_MESSAGE,
+    ):
         st.session_state.selected_doc = name
         with st.spinner("Summarizing..."):
             summary, error = _get_summary(name)

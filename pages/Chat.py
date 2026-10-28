@@ -1,7 +1,7 @@
 import re
 import streamlit as st
 
-from ui.common import app_setup, init_ui_state, run_agent
+from ui.common import MODEL_AVAILABLE, MODEL_UNAVAILABLE_MESSAGE, app_setup, init_ui_state, run_agent
 from doc_agent.storage import (
     list_documents,
     get_cached_answer,
@@ -68,7 +68,8 @@ def _handle_user_message(current_doc: str, messages: list, user_text: str) -> No
         placeholder = st.empty()
         placeholder.markdown("Thinking...")
         answer, error = _get_answer(current_doc, user_text)
-        if error:
+        if answer is None:
+            error = error or "Something went wrong. Please try again."
             placeholder.error(error)
             messages.append({"role": "assistant", "content": error, "error": True})
             return
@@ -107,7 +108,10 @@ def main() -> None:
             else:
                 st.markdown(m["content"])
 
-    user_text = st.chat_input(f"Ask about '{current_doc}'...")
+    user_text = st.chat_input(
+        f"Ask about '{current_doc}'..." if MODEL_AVAILABLE else MODEL_UNAVAILABLE_MESSAGE,
+        disabled=not MODEL_AVAILABLE,
+    )
     if not user_text:
         return
 
