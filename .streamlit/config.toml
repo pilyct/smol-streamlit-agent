@@ -1,0 +1,7 @@
+[client]
+showSidebarNavigation = false
+# Never show tracebacks/exception text in the browser; details still go to the server log.
+showErrorDetails = "none"
+
+[ui]
+initial_sidebar_state = "collapsed"
