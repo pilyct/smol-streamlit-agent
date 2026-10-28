@@ -280,7 +280,7 @@ def get_chunks_for_doc(name: str) -> List[Tuple[int, int, str, List[str]]]:
 
     out: List[Tuple[int, int, str, List[str]]] = []
     for cid, cidx, content, toks_text in rows:
-        out.append((int(cid), int(cidx), content, (toks_text or "").split()))
+        out.append((int(cid), int(cidx), content, str(toks_text or "").split()))
     return out
 
 def get_chunk_text_by_index(doc_name: str, chunk_index: int) -> Optional[str]:
