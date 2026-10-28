@@ -77,7 +77,7 @@ def main() -> None:
             f"Stored '{st.session_state.uploaded_doc_name}' successfully. You can view it in your documents list."
         )
 
-        if st.button("Go to your documents", use_container_width=True):
+        if st.button("Go to your documents", width="stretch"):
             st.switch_page("pages/Documents.py")
 
 

@@ -17,14 +17,14 @@ def main() -> None:
         with st.container(border=True):
             st.subheader("Browse your documents")
             st.write("View documents you have already uploaded, summarize them, or jump into chat.")
-            if st.button("Go to your documents", use_container_width=True, type="secondary"):
+            if st.button("Go to your documents", width="stretch", type="secondary"):
                 st.switch_page("pages/Documents.py")
 
     with col2:
         with st.container(border=True):
             st.subheader("Upload a new document")
             st.write("Add a TXT or a text based PDF to your library so you can summarize and chat with it.")
-            if st.button("Upload a document", use_container_width=True, type="primary"):
+            if st.button("Upload a document", width="stretch", type="primary"):
                 st.switch_page("pages/Upload.py")
 
 

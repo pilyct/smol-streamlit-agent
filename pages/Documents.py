@@ -54,7 +54,7 @@ def _render_summary_section() -> None:
 
     if st.session_state.selected_doc:
         st.info(f"Selected document: {st.session_state.selected_doc}")
-        if st.button("Open chat", use_container_width=True):
+        if st.button("Open chat", width="stretch"):
             st.switch_page("pages/Chat.py")
 
 
@@ -62,7 +62,7 @@ def main() -> None:
     app_setup(page_title="Doc Agent | Documents", layout="centered")
     init_ui_state()
 
-    if st.button("Back to Home", use_container_width=False, icon=":material/home:"):
+    if st.button("Back to Home", icon=":material/home:"):
         st.switch_page("pages/Home.py")
 
     st.divider()
