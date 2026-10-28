@@ -1,7 +1,7 @@
 import re
 import streamlit as st
 
-from ui.common import app_setup, init_ui_state, get_agent
+from ui.common import app_setup, init_ui_state, run_agent
 from doc_agent.storage import (
     list_documents,
     get_cached_answer,
@@ -31,22 +31,21 @@ def _resolve_current_doc(docs: list[str]) -> str:
     return current_doc
 
 
-def _get_answer(agent, current_doc: str, user_text: str) -> str:
+def _get_answer(current_doc: str, user_text: str) -> tuple[str | None, str | None]:
     cached = get_cached_answer(current_doc, user_text)
     if cached:
-        return cached
+        return cached, None
 
     prompt = (
         f"Document name: {current_doc}\n"
         f"User question: {user_text}\n"
         "Answer the question about this document."
     )
-    try:
-        answer = agent.run(prompt)
-    except Exception as e:
-        answer = f"Error: {e}"
-    set_cached_answer(current_doc, user_text, answer)
-    return answer
+    answer, error = run_agent(prompt)
+    if answer is not None:
+        # Only successful answers are cached, so a transient failure can be retried.
+        set_cached_answer(current_doc, user_text, answer)
+    return answer, error
 
 
 def _show_cited_chunks(current_doc: str, answer: str) -> None:
@@ -60,7 +59,7 @@ def _show_cited_chunks(current_doc: str, answer: str) -> None:
             st.write(chunk or "(not found)")
 
 
-def _handle_user_message(agent, current_doc: str, messages: list, user_text: str) -> None:
+def _handle_user_message(current_doc: str, messages: list, user_text: str) -> None:
     messages.append({"role": "user", "content": user_text})
     with st.chat_message("user"):
         st.markdown(user_text)
@@ -68,7 +67,11 @@ def _handle_user_message(agent, current_doc: str, messages: list, user_text: str
     with st.chat_message("assistant"):
         placeholder = st.empty()
         placeholder.markdown("Thinking...")
-        answer = _get_answer(agent, current_doc, user_text)
+        answer, error = _get_answer(current_doc, user_text)
+        if error:
+            placeholder.error(error)
+            messages.append({"role": "assistant", "content": error, "error": True})
+            return
         placeholder.markdown(answer)
         _show_cited_chunks(current_doc, answer)
 
@@ -78,7 +81,6 @@ def _handle_user_message(agent, current_doc: str, messages: list, user_text: str
 def main() -> None:
     app_setup(page_title="Doc Agent | Chat", layout="centered")
     init_ui_state()
-    agent = get_agent()
 
     st.title("Chat about your document")
 
@@ -100,13 +102,16 @@ def main() -> None:
 
     for m in messages:
         with st.chat_message(m["role"]):
-            st.markdown(m["content"])
+            if m.get("error"):
+                st.error(m["content"])
+            else:
+                st.markdown(m["content"])
 
     user_text = st.chat_input(f"Ask about '{current_doc}'...")
     if not user_text:
         return
 
-    _handle_user_message(agent, current_doc, messages, user_text)
+    _handle_user_message(current_doc, messages, user_text)
 
 
 main()
