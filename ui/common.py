@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import Literal, Optional
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -13,7 +13,7 @@ from doc_agent.storage import init_db
 logger = logging.getLogger(__name__)
 
 
-def app_setup(*, page_title: str, layout: str = "centered") -> None:
+def app_setup(*, page_title: str, layout: Literal["centered", "wide"] = "centered") -> None:
     st.set_page_config(page_title=page_title, layout=layout)
     load_dotenv()
     init_db()

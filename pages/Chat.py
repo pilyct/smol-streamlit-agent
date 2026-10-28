@@ -68,7 +68,8 @@ def _handle_user_message(current_doc: str, messages: list, user_text: str) -> No
         placeholder = st.empty()
         placeholder.markdown("Thinking...")
         answer, error = _get_answer(current_doc, user_text)
-        if error:
+        if answer is None:
+            error = error or "Something went wrong. Please try again."
             placeholder.error(error)
             messages.append({"role": "assistant", "content": error, "error": True})
             return
