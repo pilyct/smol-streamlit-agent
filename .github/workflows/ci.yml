@@ -35,7 +35,11 @@ jobs:
           cache-dependency-path: requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        # --only-binary: install prebuilt wheels only, so no package setup
+        # scripts run. --require-hashes: every package must match the hash
+        # locked in requirements.txt.
+        run: |
+          pip install --only-binary :all: --require-hashes -r requirements.txt
 
       - name: Check all modules compile
         run: python -m compileall -q app.py doc_agent pages ui eval tests
