@@ -1,7 +1,7 @@
 import streamlit as st
 
 from ui.common import app_setup, init_ui_state, run_agent
-from doc_agent.storage import list_documents, delete_document
+from doc_agent.storage import list_documents, delete_document, get_summary, set_summary
 
 
 def _render_documents_header() -> None:
@@ -22,6 +22,19 @@ def _handle_delete(name: str) -> None:
     st.rerun()
 
 
+def _get_summary(name: str) -> tuple[str | None, str | None]:
+    cached = get_summary(name)
+    if cached:
+        # Served from the database, so this works even while the model is down.
+        return cached, None
+
+    summary, error = run_agent(f"Summarize the document named '{name}'.")
+    if summary is not None and not get_summary(name):
+        # The agent is asked to call save_summary itself, but may skip it.
+        set_summary(name, summary)
+    return summary, error
+
+
 def _render_document_row(name: str, created: str) -> None:
     c1, c2, c3, c4 = st.columns([3, 2, 1.6, 1.3], vertical_alignment="center")
 
@@ -36,7 +49,7 @@ def _render_document_row(name: str, created: str) -> None:
     if c3.button("Summarize", key=f"sum_{name}", icon=":material/summarize:"):
         st.session_state.selected_doc = name
         with st.spinner("Summarizing..."):
-            summary, error = run_agent(f"Summarize the document named '{name}'.")
+            summary, error = _get_summary(name)
         if error:
             st.error(error)
         else:
