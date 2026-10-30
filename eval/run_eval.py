@@ -2,7 +2,6 @@ import argparse
 import csv
 import json
 import os
-import re
 import sys
 import time
 from datetime import datetime, timezone
@@ -18,6 +17,7 @@ sys.path.insert(0, str(EVAL_DIR))
 os.environ.setdefault("DOC_AGENT_DB", str(EVAL_DIR / "eval.db"))
 
 from doc_agent.agent import build_agent
+from doc_agent.citations import extract_cited_chunks
 from doc_agent.storage import (
     init_db,
     list_documents,
@@ -53,10 +53,6 @@ FIXTURES = {
     "LinkedIn_Profile": "linkedin_profile.txt",
 }
 
-# Same regex pages/Chat.py uses to pull citations out of an answer, copied
-# verbatim so the eval measures exactly what the UI shows users.
-_CITATION_RE = re.compile(r"\[chunk\s+(\d+)\]", re.IGNORECASE)
-
 
 def seed_fixtures() -> None:
     init_db()
@@ -72,10 +68,6 @@ def seed_fixtures() -> None:
         doc_id = upsert_document(doc_name, created_at_iso)
         chunks = chunk_text(text)
         insert_chunks(doc_id, chunks)
-
-
-def extract_cited_chunks(answer: str) -> list[int]:
-    return sorted({int(x) for x in _CITATION_RE.findall(answer)})
 
 
 def load_questions() -> list[dict]:
@@ -106,7 +98,9 @@ def run_questions(questions: list[dict], run_id: str) -> tuple[Path, list[dict]]
         row = {"id": q["id"], "doc": q["doc"], "question": q["question"]}
 
         try:
-            answer = agent.run(prompt)
+            # final_answer() can return any value (a number, a list...), so
+            # normalize to text the same way the UI does in ui/common.py.
+            answer = str(agent.run(prompt))
             row["answer"] = answer
             row["cited_chunks"] = extract_cited_chunks(answer)
             row["error"] = None
@@ -117,6 +111,11 @@ def run_questions(questions: list[dict], run_id: str) -> tuple[Path, list[dict]]
 
         row["latency_seconds"] = round(time.monotonic() - started, 3)
         results.append(row)
+        print(
+            f"[{len(results)}/{len(questions)}] {q['id']}: {row['latency_seconds']:.0f}s"
+            f"{' ERROR' if row['error'] else ''}",
+            flush=True,
+        )
 
         # Write after every question so a crash mid-run doesn't lose earlier
         # answers -- the file is always valid, complete JSON up to this point.
@@ -126,7 +125,7 @@ def run_questions(questions: list[dict], run_id: str) -> tuple[Path, list[dict]]
     return results_path, results
 
 
-def _excerpt(text: str, limit: int = ANSWER_EXCERPT_LIMIT) -> str:
+def _excerpt(text: str | None, limit: int = ANSWER_EXCERPT_LIMIT) -> str:
     text = text or ""
     return text[:limit] + ("..." if len(text) > limit else "")
 
@@ -144,7 +143,9 @@ def build_report_rows(questions: list[dict], results: list[dict]) -> list[dict]:
         r = results_by_id.get(q["id"], {})
         answer = r.get("answer")
         error = r.get("error")
-        cited_chunks = r.get("cited_chunks") or []
+        # Re-extracted from the answer rather than read from the capture, so
+        # --replay picks up changes to the citation parser.
+        cited_chunks = extract_cited_chunks(answer)
 
         row = {
             "id": q["id"],
@@ -232,9 +233,21 @@ def main() -> None:
             "Re-scores that capture instead of seeding the DB and calling the agent again."
         ),
     )
+    parser.add_argument(
+        "--only",
+        default=None,
+        metavar="IDS",
+        help="Comma-separated question ids to run, e.g. --only li-01,ls-03. Defaults to all questions.",
+    )
     args = parser.parse_args()
 
     questions = load_questions()
+    if args.only:
+        wanted = {qid.strip() for qid in args.only.split(",") if qid.strip()}
+        unknown = wanted - {q["id"] for q in questions}
+        if unknown:
+            parser.error(f"--only has unknown question ids: {', '.join(sorted(unknown))}")
+        questions = [q for q in questions if q["id"] in wanted]
 
     if args.replay:
         results_path = args.replay.resolve()
