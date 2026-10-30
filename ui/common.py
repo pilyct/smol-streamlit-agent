@@ -6,16 +6,16 @@ from typing import Literal, Optional
 import streamlit as st
 from dotenv import load_dotenv
 
-from doc_agent.agent import build_agent
+from doc_agent.agent import build_agent, build_model
 from doc_agent.errors import user_message_for
-from doc_agent.storage import init_db
+from doc_agent.storage import get_document_text, init_db
+from doc_agent.summarize import summarize_text
 
 logger = logging.getLogger(__name__)
 
-# The model is currently unavailable (no inference credits). While this is
-# False, every page shows a banner and nothing in the app calls the model.
-# Set it back to True once a working model is configured.
-MODEL_AVAILABLE = False
+# Kill switch for the AI features. While this is False, every page shows a
+# banner and nothing in the app calls the model.
+MODEL_AVAILABLE = True
 MODEL_UNAVAILABLE_MESSAGE = "The AI model is temporarily unavailable while we upgrade it."
 
 
@@ -51,6 +51,31 @@ def run_agent(prompt: str) -> tuple[Optional[str], Optional[str]]:
         return str(get_agent().run(prompt)), None
     except Exception as e:
         logger.exception("Agent run failed")
+        return None, user_message_for(e)
+
+
+@st.cache_resource
+def get_model():
+    return build_model()
+
+
+def run_summary(name: str) -> tuple[Optional[str], Optional[str]]:
+    """
+    Summarize a stored document with one model call (no agent), without ever
+    surfacing raw exceptions to the user.
+
+    Returns:
+        (summary, None) on success, or (None, user_facing_error) on failure.
+    """
+    if not MODEL_AVAILABLE:
+        return None, MODEL_UNAVAILABLE_MESSAGE
+    text = get_document_text(name)
+    if not text:
+        return None, "This document has no text to summarize."
+    try:
+        return summarize_text(get_model(), text), None
+    except Exception as e:
+        logger.exception("Summary failed")
         return None, user_message_for(e)
 
 
