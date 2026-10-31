@@ -1,6 +1,6 @@
 import streamlit as st
 
-from ui.common import MODEL_AVAILABLE, MODEL_UNAVAILABLE_MESSAGE, app_setup, init_ui_state, run_agent
+from ui.common import MODEL_AVAILABLE, MODEL_UNAVAILABLE_MESSAGE, app_setup, init_ui_state, run_summary
 from doc_agent.storage import list_documents, delete_document, get_summary, set_summary
 
 
@@ -28,9 +28,8 @@ def _get_summary(name: str) -> tuple[str | None, str | None]:
         # Served from the database, so this works even while the model is down.
         return cached, None
 
-    summary, error = run_agent(f"Summarize the document named '{name}'.")
-    if summary is not None and not get_summary(name):
-        # The agent is asked to call save_summary itself, but may skip it.
+    summary, error = run_summary(name)
+    if summary is not None:
         set_summary(name, summary)
     return summary, error
 

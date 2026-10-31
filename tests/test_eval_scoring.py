@@ -91,6 +91,12 @@ def test_groundedness_passes_on_explicit_abstention():
     assert score_groundedness("I cannot find this information in the document.") is True
 
 
+def test_groundedness_passes_on_does_not_contain_phrasing():
+    # Real qwen3.8 answer from the first full eval run (hw-05).
+    answer = "The document 'Home_Workout_Routine' does not contain any information about calories."
+    assert score_groundedness(answer) is True
+
+
 def test_groundedness_fails_on_confident_hallucination():
     assert score_groundedness("Mira's job title is Senior Data Analyst.") is False
 

@@ -2,7 +2,7 @@ from smolagents import tool
 from rank_bm25 import BM25Okapi
 from doc_agent.storage import get_chunks_for_doc, get_summary, set_summary
 
-MAX_ANSWER_CHUNKS = 5
+MAX_ANSWER_CHUNKS = 3
 
 @tool
 def search_documents(name: str, query: str) -> str:
@@ -37,7 +37,7 @@ def search_documents(name: str, query: str) -> str:
 
     out = []
     for (_cid, cidx, content, _toks), score in ranked:
-        excerpt = content[:700].replace("\n", " ").strip()
+        excerpt = content.replace("\n", " ").strip()
         out.append(f"[chunk {cidx}] {excerpt}")
 
     return "\n".join(out)
