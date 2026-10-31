@@ -1,19 +1,13 @@
-import re
 import streamlit as st
 
 from ui.common import MODEL_AVAILABLE, MODEL_UNAVAILABLE_MESSAGE, app_setup, init_ui_state, run_agent
+from doc_agent.citations import extract_cited_chunks
 from doc_agent.storage import (
     list_documents,
     get_cached_answer,
     set_cached_answer,
     get_chunk_text_by_index,
 )
-
-
-def extract_cited_chunks(answer: str) -> list[int]:
-    return sorted(
-        {int(x) for x in re.findall(r"\[chunk\s+(\d+)\]", answer, flags=re.IGNORECASE)}
-    )
 
 
 def _show_no_documents_warning() -> None:

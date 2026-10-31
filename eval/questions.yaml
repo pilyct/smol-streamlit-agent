@@ -78,7 +78,9 @@
 - id: li-04
   doc: LinkedIn_Profile
   question: "Which university did Jamie attend for a Master of Arts in International Relations & Cultural Diplomacy?"
-  expected_keywords: ["Fictional University of Arts and Sciences", "Master of Arts", "International Relations"]
+  # Only the answer itself: the degree name is already in the question, so a
+  # correct short answer shouldn't have to repeat it.
+  expected_keywords: ["Fictional University of Arts and Sciences"]
   expected_chunks: [1]
   expects_abstain: false
   difficulty: direct
@@ -94,7 +96,8 @@
 - id: li-06
   doc: LinkedIn_Profile
   question: "Based on both the work experience and the top skills listed, what combination of design and data skills does Jamie bring?"
-  expected_keywords: ["Interface design", "User Experience", "Data Scientist"]
+  # The question asks for skills, so expect a data skill rather than a job title.
+  expected_keywords: ["Interface design", "User Experience", "Power BI"]
   expected_chunks: [0, 1]
   expects_abstain: false
   difficulty: synthesis

@@ -7,7 +7,7 @@ labels out. No database access, no agent calls -- that's what keeps
 this unit-testable without fixtures or mocks.
 """
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 CORRECT_THRESHOLD = 0.7
 PARTIAL_THRESHOLD = 0.3
@@ -29,10 +29,14 @@ ABSTAIN_PHRASES = [
     "unable to find",
     "i don't know",
     "i do not know",
+    # Seen in real runs: "The document does not contain any information about ..."
+    "does not contain",
+    "doesn't contain",
+    "no mention",
 ]
 
 
-def score_correctness(answer: str, expected_keywords: List[str]) -> Tuple[float, str]:
+def score_correctness(answer: Optional[str], expected_keywords: List[str]) -> Tuple[float, str]:
     """
     Fraction of expected_keywords found (case-insensitively) in the answer,
     plus a correct/partial/incorrect label.
@@ -64,7 +68,7 @@ def score_citation(cited_chunks: List[int], expected_chunks: List[int]) -> float
     return 1.0 if set(cited_chunks) & set(expected_chunks) else 0.0
 
 
-def score_groundedness(answer: str) -> bool:
+def score_groundedness(answer: Optional[str]) -> bool:
     """
     True (pass) if the answer contains an explicit abstention phrase,
     for questions the corpus genuinely does not answer.

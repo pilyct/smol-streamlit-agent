@@ -41,6 +41,24 @@ def model_available(monkeypatch):
     monkeypatch.setattr(common, "MODEL_AVAILABLE", True)
 
 
+@pytest.mark.parametrize("value", ["true", "True", " TRUE ", "1", "yes", "on"])
+def test_ai_enabled_values(monkeypatch, value):
+    monkeypatch.setenv("AI_ENABLED", value)
+    assert common.ai_enabled_from_env() is True
+
+
+@pytest.mark.parametrize("value", ["false", "0", "no", "", "enabled"])
+def test_ai_disabled_values(monkeypatch, value):
+    monkeypatch.setenv("AI_ENABLED", value)
+    assert common.ai_enabled_from_env() is False
+
+
+def test_ai_disabled_when_unset(monkeypatch):
+    # A deployment that forgets the setting shows the banner instead of failing.
+    monkeypatch.delenv("AI_ENABLED", raising=False)
+    assert common.ai_enabled_from_env() is False
+
+
 @pytest.mark.parametrize("name", PAGES)
 def test_banner_on_every_page(model_unavailable, name):
     assert _has_banner(_page(name))
