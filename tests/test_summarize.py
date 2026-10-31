@@ -41,5 +41,7 @@ def test_long_documents_are_truncated():
 
 @pytest.mark.parametrize("reply", ["", "   ", None])
 def test_empty_reply_raises(reply):
+    model = FakeModel(reply)
+
     with pytest.raises(RuntimeError):
-        summarize_text(FakeModel(reply), "Some document text.")
+        summarize_text(model, "Some document text.")
