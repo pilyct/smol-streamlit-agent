@@ -75,8 +75,9 @@ Known limitations:
 
 - **Speed**: each answer takes 20–60 s, because a reasoning model runs locally and the
   agent needs at least two model calls per question.
-- **Local only**: Ollama runs on your machine, so the app can't be deployed to Streamlit
-  Community Cloud as is. A hosted, OpenAI-compatible provider would be needed for that.
+- **Local only**: Ollama runs on your machine, so a Streamlit Community Cloud deployment
+  has no model. It runs with the AI features off (see [Deployment](#deployment)) until a
+  hosted, OpenAI-compatible provider is configured.
 - **Long documents**: summaries use the first 24,000 characters of a document.
 - **Keyword-based scoring**: the eval checks for expected keywords and phrases, so it can
   miss correct answers phrased differently.
@@ -140,10 +141,16 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install --require-hashes -r requirements.txt
 ```
 
-### 3. Configure (optional)
+### 3. Configure
 
-The defaults point at a local Ollama, so no `.env` is needed. To change them, create a
-`.env` file:
+The AI features are **off unless you turn them on**, so a deployment without a model
+shows a banner instead of failing. Create a `.env` file with:
+
+```bash
+AI_ENABLED=true
+```
+
+The model settings default to a local Ollama. Add them only to change them:
 
 ```bash
 MODEL_ID=qwen3.8
@@ -224,6 +231,7 @@ Tips:
 
 | Variable | Default | Purpose |
 |---|---|---|
+| `AI_ENABLED` | off | `true` turns on chat and new summaries; anything else shows the "unavailable" banner |
 | `MODEL_ID` | `qwen3.8` | Model name on the server |
 | `MODEL_API_BASE` | `http://localhost:11434/v1` | Any OpenAI-compatible endpoint |
 | `MODEL_API_KEY` | `ollama` | API key (ignored by Ollama) |
@@ -234,6 +242,22 @@ Tips:
 Any server that speaks the OpenAI chat-completions API works without code changes.
 Point `MODEL_API_BASE`, `MODEL_API_KEY` and `MODEL_ID` at it. Before using a hosted free
 tier, check its rate limits and data-use terms.
+
+### Deployment
+
+On Streamlit Community Cloud, settings go in the app's **Secrets** instead of `.env`.
+Leave `AI_ENABLED` out to deploy with the AI features off: uploading, browsing and cached
+summaries keep working. To turn them on with a hosted provider:
+
+```toml
+AI_ENABLED = "true"
+MODEL_API_BASE = "https://..."
+MODEL_API_KEY = "..."
+MODEL_ID = "..."
+```
+
+**Quote the values.** Streamlit only copies string and number secrets into environment
+variables, so an unquoted `AI_ENABLED = true` (a TOML boolean) would be ignored.
 
 ### Adding a tool
 
